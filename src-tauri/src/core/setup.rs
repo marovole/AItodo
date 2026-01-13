@@ -14,7 +14,6 @@ use tauri::TitleBarStyle;
 use crate::core::{
     conf::AppConf,
     constant::{ASK_HEIGHT, INIT_SCRIPT, TITLEBAR_HEIGHT},
-    template,
 };
 
 pub fn init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
