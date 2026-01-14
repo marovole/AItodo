@@ -90,17 +90,14 @@ pub fn init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
                         }
                     })
                     .initialization_script(&AppConf::load_script(&handle, "ask.js"))
+                    .initialization_script(&AppConf::load_script(&handle, "deep_research.js"))
                     .initialization_script(INIT_SCRIPT);
 
-            let titlebar_view = WebviewBuilder::new(
-                "titlebar",
-                WebviewUrl::App("index.html".into()),
-            )
-            .auto_resize();
+            let titlebar_view =
+                WebviewBuilder::new("titlebar", WebviewUrl::App("index.html".into())).auto_resize();
 
             let ask_view =
-                WebviewBuilder::new("ask", WebviewUrl::App("index.html".into()))
-                    .auto_resize();
+                WebviewBuilder::new("ask", WebviewUrl::App("index.html".into())).auto_resize();
 
             let win = window.lock().unwrap();
             let scale_factor = win.scale_factor().unwrap();

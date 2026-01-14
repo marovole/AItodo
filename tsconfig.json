@@ -28,7 +28,9 @@
       "~hooks/*": ["src/hooks/*"],
       "~utils/*": ["src/utils/*"],
       "~icons/*": ["src/icons/*"],
-      "~layout/*": ["src/layout/*"]
+      "~layout/*": ["src/layout/*"],
+      "~stores/*": ["src/stores/*"],
+      "~styles/*": ["src/styles/*"]
     }
   },
   "include": ["src"],

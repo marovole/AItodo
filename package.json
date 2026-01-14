@@ -1,5 +1,5 @@
 {
-  "name": "chatgpt",
+  "name": "aitodo",
   "private": true,
   "version": "2.0.0",
   "type": "module",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "2.0.0-beta.15",
+    "@tauri-apps/plugin-notification": "2.0.0-beta.7",
     "@tauri-apps/plugin-os": "2.0.0-beta.7",
     "@tauri-apps/plugin-shell": "2.0.0-beta.8",
     "clsx": "^2.1.1",
@@ -18,7 +19,10 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hotkeys-hook": "^4.5.0",
-    "react-router-dom": "^6.23.0"
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.23.0",
+    "remark-gfm": "^4.0.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",

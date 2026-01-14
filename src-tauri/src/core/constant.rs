@@ -2,6 +2,7 @@ pub static TITLEBAR_HEIGHT: f64 = 28.0;
 pub static ASK_HEIGHT: f64 = 120.0;
 
 pub static WINDOW_SETTINGS: &str = "settings";
+pub static WINDOW_TODO: &str = "todo-window";
 
 pub static INIT_SCRIPT: &str = r#"
 window.addEventListener('DOMContentLoaded', function() {

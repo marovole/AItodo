@@ -3,6 +3,9 @@ use tauri::{command, AppHandle, LogicalPosition, Manager, PhysicalSize};
 use crate::core::{
     conf::AppConf,
     constant::{ASK_HEIGHT, TITLEBAR_HEIGHT},
+    todo::{
+        self, CreateTodoInput, StatusCounts, Todo, TodoStatus, TodoWithResearch, UpdateTodoInput,
+    },
 };
 
 #[command]
@@ -100,6 +103,108 @@ pub fn set_theme(app: AppHandle, theme: String) {
 #[command]
 pub fn get_app_conf(app: AppHandle) -> AppConf {
     AppConf::load(&app).unwrap()
+}
+
+#[command]
+pub fn cmd_create_todo(input: CreateTodoInput) -> Result<Todo, String> {
+    todo::create_todo(input).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_get_todos(status: Option<String>) -> Result<Vec<Todo>, String> {
+    todo::get_todos(status.as_deref()).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_get_todo_detail(id: String) -> Result<Option<TodoWithResearch>, String> {
+    todo::get_todo_with_research(&id).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_update_todo(id: String, input: UpdateTodoInput) -> Result<Option<Todo>, String> {
+    todo::update_todo(&id, input).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_delete_todo(id: String) -> Result<bool, String> {
+    todo::delete_todo(&id).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_get_status_counts() -> Result<StatusCounts, String> {
+    todo::get_status_counts().map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn cmd_start_research(app: AppHandle, id: String) -> Result<Option<Todo>, String> {
+    let todo = todo::get_todo_by_id(&id).map_err(|e| e.to_string())?;
+
+    if let Some(t) = todo {
+        let input = UpdateTodoInput {
+            title: None,
+            description: None,
+            url: None,
+            status: Some(TodoStatus::Researching),
+        };
+        let updated = todo::update_todo(&id, input).map_err(|e| e.to_string())?;
+
+        // Trigger research in the main webview
+        if let Some(win) = app.get_window("core") {
+            if let Some(webview) = win.get_webview("main") {
+                let prompt = format!(
+                    "Please research: {}. Context: {}",
+                    t.title,
+                    t.description
+                        .unwrap_or_else(|| "No description provided".to_string())
+                );
+                // We need to escape the prompt for JS string injection
+                let escaped_prompt = prompt.replace("'", "\\'").replace("\n", "\\n");
+                let script = format!("window.DeepResearch.start('{}', '{}')", id, escaped_prompt);
+                let _ = webview.eval(&script);
+            }
+        }
+
+        Ok(updated)
+    } else {
+        Ok(None)
+    }
+}
+
+#[command]
+pub fn cmd_cancel_research(app: AppHandle, id: String) -> Result<Option<Todo>, String> {
+    let input = UpdateTodoInput {
+        title: None,
+        description: None,
+        url: None,
+        status: Some(TodoStatus::Pending),
+    };
+    let updated = todo::update_todo(&id, input).map_err(|e| e.to_string())?;
+
+    if let Some(win) = app.get_window("core") {
+        if let Some(webview) = win.get_webview("main") {
+            let _ = webview.eval("window.DeepResearch.cancel()");
+        }
+    }
+
+    Ok(updated)
+}
+
+#[command]
+pub fn cmd_save_research_result(
+    todo_id: String,
+    source: String,
+    content: String,
+    raw_html: Option<String>,
+    started_at: String,
+) -> Result<todo::ResearchResult, String> {
+    todo::save_research_result(
+        &todo_id,
+        &source,
+        &content,
+        raw_html.as_deref(),
+        &started_at,
+    )
+    .map_err(|e| e.to_string())
 }
 
 #[command]

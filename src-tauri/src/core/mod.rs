@@ -1,6 +1,9 @@
 pub mod cmd;
 pub mod conf;
 pub mod constant;
+pub mod db;
+pub mod research;
 pub mod setup;
-pub mod window;
+pub mod template;
 pub mod todo;
+pub mod window;
