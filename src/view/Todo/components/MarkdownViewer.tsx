@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useState } from 'react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
@@ -17,7 +18,6 @@ export default function MarkdownViewer({ content }: MarkdownViewerProps) {
 
     if (isTauri) {
       e.preventDefault();
-      const { openUrl } = await import('@tauri-apps/plugin-opener');
       await openUrl(href);
     }
   };

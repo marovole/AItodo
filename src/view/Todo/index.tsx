@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useTodoStore } from '~/stores/todoStore';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification,
+  onAction,
+} from '@tauri-apps/plugin-notification';
 import TodoLayout from './components/TodoLayout';
 import TodoSidebar from './components/TodoSidebar';
 import TodoList from './components/TodoList';
@@ -39,10 +47,6 @@ export default function TodoView() {
     let unlisten: (() => void) | null = null;
 
     const setupListener = async () => {
-      const { listen } = await import('@tauri-apps/api/event');
-      const { invoke } = await import('@tauri-apps/api/core');
-      const { isPermissionGranted, requestPermission, sendNotification } = await import('@tauri-apps/plugin-notification');
-
       const unlistenFn = await listen<ResearchCompletePayload>('research_complete', async (event) => {
         const { todoId, content, source, startedAt } = event.payload;
         
@@ -92,7 +96,6 @@ export default function TodoView() {
     let unsubscribe: (() => void) | null = null;
 
     const setupHandler = async () => {
-      const { onAction } = await import('@tauri-apps/plugin-notification');
       const listener = await onAction((notification) => {
         const todoId = notification.extra?.todoId as string | undefined;
         if (todoId) {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { open } from '@tauri-apps/plugin-shell';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { debounce } from 'lodash';
 import clsx from 'clsx';
 
@@ -109,7 +109,7 @@ export default function Titlebar() {
   }, [theme]);
 
   const handleOpenUrl = () => {
-    open(url);
+    openUrl(url);
   };
 
   const handleSetting = () => {

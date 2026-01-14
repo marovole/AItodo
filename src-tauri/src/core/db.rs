@@ -60,6 +60,7 @@ pub fn get_db() -> &'static Mutex<Connection> {
     DB_INSTANCE.get().expect("Database not initialized")
 }
 
+#[allow(dead_code)]
 /// Get a setting value
 pub fn get_setting(key: &str) -> SqliteResult<Option<String>> {
     let conn = get_db().lock().unwrap();
@@ -73,6 +74,7 @@ pub fn get_setting(key: &str) -> SqliteResult<Option<String>> {
     }
 }
 
+#[allow(dead_code)]
 /// Set a setting value
 pub fn set_setting(key: &str, value: &str) -> SqliteResult<()> {
     let conn = get_db().lock().unwrap();

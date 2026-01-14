@@ -1,13 +1,11 @@
 import { create } from 'zustand';
+import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
-const invoke = isTauri 
-  ? async <T>(cmd: string, args?: Record<string, unknown>): Promise<T> => {
-      const { invoke: tauriInvoke } = await import('@tauri-apps/api/core');
-      return tauriInvoke(cmd, args);
-    }
-  : createMockInvoke();
+type InvokeFn = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
+
+const invoke: InvokeFn = isTauri ? tauriInvoke : createMockInvoke();
 
 function createMockInvoke() {
   const mockTodos: I.Todo[] = [];
