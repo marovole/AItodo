@@ -244,7 +244,7 @@ pub fn save_research_result(
     raw_html: Option<&str>,
     started_at: &str,
 ) -> SqliteResult<ResearchResult> {
-    let conn = get_db().lock().unwrap();
+    let mut conn = get_db().lock().unwrap();
     let id = Uuid::new_v4().to_string();
     let completed_at = Utc::now().to_rfc3339();
 
@@ -252,16 +252,20 @@ pub fn save_research_result(
     let completed: DateTime<Utc> = completed_at.parse().unwrap_or_else(|_| Utc::now());
     let duration = (completed - started).num_seconds();
 
-    conn.execute(
+    let tx = conn.transaction()?;
+
+    tx.execute(
         "INSERT INTO research_results (id, todo_id, source, content, raw_html, started_at, completed_at, duration_seconds)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
         params![id, todo_id, source, content, raw_html, started_at, completed_at, duration],
     )?;
 
-    conn.execute(
+    tx.execute(
         "UPDATE todos SET status = 'review', updated_at = ?1 WHERE id = ?2",
         params![completed_at, todo_id],
     )?;
+
+    tx.commit()?;
 
     Ok(ResearchResult {
         id,

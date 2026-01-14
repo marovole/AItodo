@@ -11,27 +11,31 @@ export default function WinTitlebar() {
 
   useEffect(() => {
     (async () => {
-      const win = Window.getByLabel('core');
-      const max = await win?.isMaximized();
-      setMax(!!max);
-    })()
-  }, [])
+      const win = await Window.getByLabel('core');
+      if (!win) return;
+      const max = await win.isMaximized();
+      setMax(max);
+    })();
+  }, []);
 
   const handleToggle = async () => {
-    const win = Window.getByLabel('core');
-    await win?.toggleMaximize();
-    setMax(!isMax);
-  }
-
-  const handleMinimize = () => {
-    const win = Window.getByLabel('core');
-    win?.minimize();
+    const win = await Window.getByLabel('core');
+    if (!win) return;
+    await win.toggleMaximize();
+    setMax((prev) => !prev);
   };
 
-  const handleClose = () => {
-    const win = Window.getByLabel('core');
-    win?.close();
-  }
+  const handleMinimize = async () => {
+    const win = await Window.getByLabel('core');
+    if (!win) return;
+    await win.minimize();
+  };
+
+  const handleClose = async () => {
+    const win = await Window.getByLabel('core');
+    if (!win) return;
+    await win.close();
+  };
 
   return (
     <div className="flex items-center gap-1">

@@ -26,11 +26,31 @@ pub fn init_db(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     // Create tables using migration file
     let migration_sql = include_str!("../migrations/001_init.sql");
     conn.execute_batch(migration_sql)?;
+    ensure_research_results_raw_html_column(&conn)?;
 
     // Store the connection
     DB_INSTANCE
         .set(Mutex::new(conn))
         .map_err(|_| "Database already initialized")?;
+
+    Ok(())
+}
+
+fn ensure_research_results_raw_html_column(conn: &Connection) -> SqliteResult<()> {
+    let mut stmt = conn.prepare("PRAGMA table_info(research_results)")?;
+    let columns = stmt.query_map([], |row| row.get::<_, String>(1))?;
+
+    let mut has_raw_html = false;
+    for column in columns {
+        if column.as_deref() == Ok("raw_html") {
+            has_raw_html = true;
+            break;
+        }
+    }
+
+    if !has_raw_html {
+        conn.execute("ALTER TABLE research_results ADD COLUMN raw_html TEXT", [])?;
+    }
 
     Ok(())
 }

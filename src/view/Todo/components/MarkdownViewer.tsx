@@ -2,6 +2,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useState } from 'react';
 
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
 interface MarkdownViewerProps {
   content: string;
 }
@@ -11,10 +13,12 @@ export default function MarkdownViewer({ content }: MarkdownViewerProps) {
 
   const handleLinkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     const href = e.currentTarget.getAttribute('href');
-    if (href && (href.startsWith('http') || href.startsWith('https'))) {
+    if (!href || (!href.startsWith('http') && !href.startsWith('https'))) return;
+
+    if (isTauri) {
       e.preventDefault();
-      const { open } = await import('@tauri-apps/plugin-shell');
-      await open(href);
+      const { openUrl } = await import('@tauri-apps/plugin-opener');
+      await openUrl(href);
     }
   };
 
@@ -25,7 +29,7 @@ export default function MarkdownViewer({ content }: MarkdownViewerProps) {
           remarkPlugins={[remarkGfm]}
           components={{
             a: ({ node, ...props }) => (
-              <a {...props} onClick={handleLinkClick as any} target="_blank" rel="noopener noreferrer" />
+              <a {...props} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" />
             ),
             code: ({ node, inline, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');

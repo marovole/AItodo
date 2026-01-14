@@ -149,6 +149,7 @@ pub fn cmd_start_research(app: AppHandle, id: String) -> Result<Option<Todo>, St
         let updated = todo::update_todo(&id, input).map_err(|e| e.to_string())?;
 
         // Trigger research in the main webview
+        let mut started = false;
         if let Some(win) = app.get_window("core") {
             if let Some(webview) = win.get_webview("main") {
                 let prompt = format!(
@@ -160,11 +161,23 @@ pub fn cmd_start_research(app: AppHandle, id: String) -> Result<Option<Todo>, St
                 // We need to escape the prompt for JS string injection
                 let escaped_prompt = prompt.replace("'", "\\'").replace("\n", "\\n");
                 let script = format!("window.DeepResearch.start('{}', '{}')", id, escaped_prompt);
-                let _ = webview.eval(&script);
+                started = webview.eval(&script).is_ok();
             }
         }
 
-        Ok(updated)
+        let final_todo = if !started {
+            let rollback = UpdateTodoInput {
+                title: None,
+                description: None,
+                url: None,
+                status: Some(TodoStatus::Pending),
+            };
+            todo::update_todo(&id, rollback).unwrap_or(updated)
+        } else {
+            updated
+        };
+
+        Ok(final_todo)
     } else {
         Ok(None)
     }

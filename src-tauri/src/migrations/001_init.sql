@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS research_results (
     todo_id TEXT NOT NULL REFERENCES todos(id) ON DELETE CASCADE,
     source TEXT DEFAULT 'chatgpt',
     content TEXT,
+    raw_html TEXT,
     started_at DATETIME,
     completed_at DATETIME,
     duration_seconds INTEGER

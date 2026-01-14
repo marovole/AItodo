@@ -6,7 +6,7 @@ use tauri::{
     webview::DownloadEvent, App, LogicalPosition, Manager, PhysicalSize, WebviewBuilder,
     WebviewUrl, WindowBuilder, WindowEvent,
 };
-use tauri_plugin_shell::ShellExt;
+use tauri_plugin_opener::OpenerExt;
 
 #[cfg(target_os = "macos")]
 use tauri::TitleBarStyle;
@@ -14,6 +14,7 @@ use tauri::TitleBarStyle;
 use crate::core::{
     conf::AppConf,
     constant::{ASK_HEIGHT, INIT_SCRIPT, TITLEBAR_HEIGHT},
+    template,
 };
 
 pub fn init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
@@ -79,8 +80,8 @@ pub fn init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
 
                                     if success {
                                         app_handle
-                                            .shell()
-                                            .open(final_path.to_string_lossy(), None)
+                                            .opener()
+                                            .open_path(final_path.to_string_lossy(), None::<String>)
                                             .expect("[view:download] Failed to open file");
                                     }
                                 }
